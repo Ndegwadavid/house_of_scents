@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'users',
+    'products',
 ]
 
 MIDDLEWARE = [
@@ -118,3 +119,7 @@ EMAIL_USE_TLS = False
 SITE_URL = os.getenv('SITE_URL')
 
 AUTH_USER_MODEL = 'users.User'
+
+# At the end of settings.py
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
