@@ -7,9 +7,11 @@ from .models import User
 from django.core.mail import send_mail
 from django.conf import settings
 import uuid
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class RegisterView(APIView):
-    permission_classes = [AllowAny]  # Allow unauthenticated access
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -19,7 +21,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class VerifyEmailView(APIView):
-    permission_classes = [AllowAny]  # Allow unauthenticated access
+    permission_classes = [AllowAny]
 
     def get(self, request):
         token = request.query_params.get('token')
@@ -35,7 +37,7 @@ class VerifyEmailView(APIView):
             return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]  # Require authentication
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         serializer = UserSerializer(request.user)
@@ -49,7 +51,7 @@ class ProfileView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PasswordResetRequestView(APIView):
-    permission_classes = [AllowAny]  # Allow unauthenticated access
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
@@ -71,7 +73,7 @@ class PasswordResetRequestView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PasswordResetConfirmView(APIView):
-    permission_classes = [AllowAny]  # Allow unauthenticated access
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
@@ -83,7 +85,11 @@ class PasswordResetConfirmView(APIView):
                 user.set_password(new_password)
                 user.verification_token = None
                 user.save()
-                return Response({'message': 'Password reset successfully.'}, status=status.HTTP_200_OK)
+                # Revoke all outstanding tokens for the user
+                tokens = OutstandingToken.objects.filter(user=user)
+                for token in tokens:
+                    BlacklistedToken.objects.get_or_create(token=token)
+                return Response({'message': 'Password reset successfully. All previous sessions revoked.'}, status=status.HTTP_200_OK)
             except User.DoesNotExist:
                 return Response({'error': 'Invalid or expired token.'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

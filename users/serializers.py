@@ -29,7 +29,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             is_active=False
         )
-        # Generate verification token
         token = str(uuid.uuid4())
         user.verification_token = token
         user.save()

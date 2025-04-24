@@ -5,9 +5,9 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     address = models.TextField(blank=True, null=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
-    is_active = models.BooleanField(default=False)  # For email verification
+    is_active = models.BooleanField(default=False)
     role = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('admin', 'Admin')], default='customer')
-    verification_token = models.CharField(max_length=36, blank=True, null=True)  # For email verification and password reset
+    verification_token = models.CharField(max_length=36, blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
