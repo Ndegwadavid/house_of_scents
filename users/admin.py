@@ -14,3 +14,12 @@ class UserAdmin(admin.ModelAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     readonly_fields = ('date_joined', 'last_login')
+
+
+##create user with role admin
+#from users.models import User
+#user = User.objects.get(email='david@gmail.com')
+#user.role = 'admin'
+#user.is_active = True
+#user.save()
+#exit()

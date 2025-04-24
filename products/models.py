@@ -3,7 +3,6 @@ from django.core.validators import MinValueValidator
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='subcategories')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -20,6 +19,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     photo = models.ImageField(upload_to='products/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_new = models.BooleanField(default=True)  # For frontend new arrivals
 
     def __str__(self):
         return self.name

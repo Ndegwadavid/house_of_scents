@@ -51,3 +51,11 @@ class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAdminUser]
+
+class NewProductsView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        products = Product.objects.filter(is_new=True)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data)

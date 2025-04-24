@@ -8,7 +8,7 @@ import uuid
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'address', 'phone', 'role']
+        fields = ['id', 'email', 'username', 'address', 'phone', 'role', 'receive_stock_alerts']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)

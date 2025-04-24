@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'products',
+    'cart',
+    'orders',
 ]
 
 MIDDLEWARE = [
@@ -123,3 +125,19 @@ AUTH_USER_MODEL = 'users.User'
 # At the end of settings.py
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
