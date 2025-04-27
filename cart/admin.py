@@ -9,14 +9,18 @@ class CartItemInline(admin.TabularInline):
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ('user_email', 'session_key', 'item_count', 'created_at', 'updated_at')
-    search_fields = ('user__email', 'session_key')
-    list_filter = ('created_at',)
+    list_display = ('user_email', 'session_key', 'coupon_code', 'delivery_mode', 'item_count', 'created_at', 'updated_at')
+    search_fields = ('user__email', 'session_key', 'coupon__code')
+    list_filter = ('created_at', 'delivery_mode')
     inlines = [CartItemInline]
 
     def user_email(self, obj):
         return obj.user.email if obj.user else 'Guest'
     user_email.short_description = 'User'
+
+    def coupon_code(self, obj):
+        return obj.coupon.code if obj.coupon else 'None'
+    coupon_code.short_description = 'Coupon'
 
     def item_count(self, obj):
         return obj.items.count()

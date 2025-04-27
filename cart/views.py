@@ -45,6 +45,27 @@ class CartView(APIView):
         serializer = CartSerializer(cart)
         return Response(serializer.data)
 
+    def patch(self, request):
+        session_key = request.session.session_key
+        if request.user.is_authenticated:
+            cart = Cart.objects.filter(user=request.user).first()
+        else:
+            if not session_key:
+                request.session.create()
+                session_key = request.session.session_key
+            cart = Cart.objects.filter(session_key=session_key).first()
+
+        if not cart:
+            return Response({'error': 'Cart not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CartSerializer(cart, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            logger.info(f"Updated cart {cart.id}: coupon={cart.coupon}, delivery_mode={cart.delivery_mode}")
+            return Response(serializer.data)
+        logger.error(f"Cart update errors: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class AddToCartView(APIView):
     def post(self, request):
         logger.info(f"Add to cart request with data: {request.data}")
@@ -76,6 +97,39 @@ class AddToCartView(APIView):
             return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
         logger.error(f"Serializer errors: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateCartItemView(APIView):
+    def patch(self, request):
+        session_key = request.session.session_key
+        if request.user.is_authenticated:
+            cart = Cart.objects.filter(user=request.user).first()
+        else:
+            if not session_key:
+                request.session.create()
+                session_key = request.session.session_key
+            cart = Cart.objects.filter(session_key=session_key).first()
+
+        if not cart:
+            return Response({'error': 'Cart not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        product_id = request.data.get('product_id')
+        quantity = request.data.get('quantity')
+        if not product_id or quantity is None:
+            return Response({'error': 'Product ID and quantity are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            cart_item = cart.items.get(product_id=product_id)
+            data = {'quantity': quantity}
+            serializer = CartItemSerializer(cart_item, data=data, context={'cart': cart}, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                logger.info(f"Updated cart item {cart_item.id} to quantity {quantity}")
+                return Response(CartSerializer(cart).data)
+            logger.error(f"Cart item update errors: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except CartItem.DoesNotExist:
+            logger.warning(f"Item with product_id {product_id} not found in cart.")
+            return Response({'error': 'Item not found in cart.'}, status=status.HTTP_404_NOT_FOUND)
 
 class RemoveFromCartView(APIView):
     def delete(self, request):
@@ -112,3 +166,23 @@ class RemoveFromCartView(APIView):
 
         serializer = CartSerializer(cart)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ClearCartView(APIView):
+    def delete(self, request):
+        session_key = request.session.session_key
+        if request.user.is_authenticated:
+            cart = Cart.objects.filter(user=request.user).first()
+        else:
+            if not session_key:
+                return Response({'error': 'No cart exists.'}, status=status.HTTP_404_NOT_FOUND)
+            cart = Cart.objects.filter(session_key=session_key).first()
+
+        if not cart:
+            return Response({'error': 'Cart not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        cart.items.all().delete()
+        cart.coupon = None
+        cart.delivery_mode = None
+        cart.save()
+        logger.info(f"Cleared cart: {cart.id}")
+        return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
