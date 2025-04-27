@@ -5,7 +5,7 @@ curl -X POST http://localhost:8000/api/auth/register/ -H "Content-Type: applicat
 curl http://localhost:8000/api/auth/verify-email/?token=edb9aed5-8543-45f0-82b8-365c7f07d5d6
 
 ## login
-curl -X POST http://localhost:8000/api/auth/login/ -H "Content-Type: application/json" -d '{"email": "test1@gmail.com", "password": "Test1234!"}'
+curl -X POST http://localhost:8000/api/auth/login/ -H "Content-Type: application/json" -d '{"email": "alice@gmail.com", "password": "kali"}'
 
 ## profile access
 curl http://localhost:8000/api/auth/profile/ -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDY0NTczLCJpYXQiOjE3NDU0NTk3NzMsImp0aSI6IjZjNDNkM2FmZmY1MjQ3ZmRiMGQ5NTIwMDZkZjE5MmQzIiwidXNlcl9pZCI6Mn0.Tn4gLxXQlAEVcJyJnx_m0Q278_aRcRFOnyNYfbeMuUc"
@@ -40,3 +40,57 @@ curl -X POST http://localhost:8000/api/auth/logout/ -H "Content-Type: applicatio
 
 ## optin to receive stock alerts
 curl -X PUT http://localhost:8000/api/auth/profile/ -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDYyMTE0LCJpYXQiOjE3NDU0NTczMTQsImp0aSI6ImFmODcxMWE3MDhjZTRiODBiYTQ3NmRhMjMzYTQ4MjI4IiwidXNlcl9pZCI6Mn0.SXJT95sUoNl-XiNsQ8IYUW3K0QzGsKwsW0cRtzUy7qA" -H "Content-Type: application/json" -d '{"receive_stock_alerts": true}'
+
+## add to cart
+curl -X POST http://localhost:8000/api/cart/add/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzM5MDAxLCJpYXQiOjE3NDU3MzQyMDEsImp0aSI6ImE2ZTIyMTVjODM1ZDRlYzBhODM4YmRmODYyOGI3Y2E5IiwidXNlcl9pZCI6OH0.noHTY9gV-yzlubCaWvZZr5e2kL-WMOMcUB5xuaDD7Ic" \
+-d '{"product_id": 1, "quantity": 2}'
+
+## whats in cart
+curl -X PATCH http://localhost:8000/api/cart/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzM5MDAxLCJpYXQiOjE3NDU3MzQyMDEsImp0aSI6ImE2ZTIyMTVjODM1ZDRlYzBhODM4YmRmODYyOGI3Y2E5IiwidXNlcl9pZCI6OH0.noHTY9gV-yzlubCaWvZZr5e2kL-WMOMcUB5xuaDD7Ic" \
+-d '{"coupon_code": "HOUSEOFSCENTS001"}'
+
+
+## orders
+curl -X POST http://localhost:8000/api/orders/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzM5MDAxLCJpYXQiOjE3NDU3MzQyMDEsImp0aSI6ImE2ZTIyMTVjODM1ZDRlYzBhODM4YmRmODYyOGI3Y2E5IiwidXNlcl9pZCI6OH0.noHTY9gV-yzlubCaWvZZr5e2kL-WMOMcUB5xuaDD7Ic" \
+-d '{
+  "coupon_code": "HOUSEOFSCENTS001",
+  "delivery_mode": "pay_on_delivery",
+  "address_line1": "123 Scented Lane",
+  "address_line2": "Apartment 4B",
+  "city": "Nairobi",
+  "postal_code": "00100",
+  "country": "Kenya"
+}'
+
+## profile
+curl -X GET http://localhost:8000/api/auth/profile/ \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzM5MDAxLCJpYXQiOjE3NDU3MzQyMDEsImp0aSI6ImE2ZTIyMTVjODM1ZDRlYzBhODM4YmRmODYyOGI3Y2E5IiwidXNlcl9pZCI6OH0.noHTY9gV-yzlubCaWvZZr5e2kL-WMOMcUB5xuaDD7Ic"
+### add cart
+curl -X POST http://localhost:8000/api/cart/add/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzQyMTA5LCJpYXQiOjE3NDU3MzczMDksImp0aSI6IjQ4NzViNGU1ZjBkNTQyODJhMmVjOTE5ZWI3ZTY4NTlhIiwidXNlcl9pZCI6OH0.0lWkTXaBLL7YAkSPm-GHVAoW6Jg17_l-Zh0jaqTT3eo" \
+-d '{"product_id": 1, "quantity": 2}'
+
+## orders
+curl -X POST http://localhost:8000/api/orders/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzQyMTA5LCJpYXQiOjE3NDU3MzczMDksImp0aSI6IjQ4NzViNGU1ZjBkNTQyODJhMmVjOTE5ZWI3ZTY4NTlhIiwidXNlcl9pZCI6OH0.0lWkTXaBLL7YAkSPm-GHVAoW6Jg17_l-Zh0jaqTT3eo" \
+-d '{
+  "delivery_mode": "pay_on_delivery",
+  "address_line1": "123 Scented Lane",
+  "address_line2": "Apartment 4B",
+  "city": "Nairobi",
+  "postal_code": "00100",
+  "country": "Kenya"
+}'
+### inititate stk
+curl -X POST http://localhost:8000/api/checkout/initiate/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzQyMTA5LCJpYXQiOjE3NDU3MzczMDksImp0aSI6IjQ4NzViNGU1ZjBkNTQyODJhMmVjOTE5ZWI3ZTY4NTlhIiwidXNlcl9pZCI6OH0.0lWkTXaBLL7YAkSPm-GHVAoW6Jg17_l-Zh0jaqTT3eo" \
+-d '{"order_id": "HOS-20250427-0001", "payment_method": "till_number"}'

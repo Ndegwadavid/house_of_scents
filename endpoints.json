@@ -1,0 +1,337 @@
+{
+    "users": [
+      {
+        "endpoint": "/api/auth/register/",
+        "method": "POST",
+        "description": "Register a new user with email, password, first name, and last name.",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/auth/register/ -H \"Content-Type: application/json\" -d '{\"email\": \"bob@gmail.com\", \"password\": \"kali\", \"first_name\": \"Bob\", \"last_name\": \"Smith\"}'",
+        "response_example": {
+          "id": 9,
+          "email": "bob@gmail.com",
+          "first_name": "Bob",
+          "last_name": "Smith"
+        }
+      },
+      {
+        "endpoint": "/api/auth/login/",
+        "method": "POST",
+        "description": "Login with email and password to receive JWT access and refresh tokens.",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/auth/login/ -H \"Content-Type: application/json\" -d '{\"email\": \"alice@gmail.com\", \"password\": \"kali\"}'",
+        "response_example": {
+          "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        }
+      },
+      {
+        "endpoint": "/api/auth/resend-verification/",
+        "method": "POST",
+        "description": "Resend verification email to the provided email address.",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/auth/resend-verification/ -H \"Content-Type: application/json\" -d '{\"email\": \"alice@gmail.com\"}'",
+        "response_example": {"message": "Verification email sent."}
+      },
+      {
+        "endpoint": "/api/auth/verify-email/",
+        "method": "GET",
+        "description": "Verify email using the token sent in the verification email.",
+        "permissions": "AllowAny",
+        "curl": "curl -X GET \"http://localhost:8000/api/auth/verify-email/?token=your_verification_token\"",
+        "response_example": {"message": "Email verified successfully."}
+      },
+      {
+        "endpoint": "/api/auth/profile/",
+        "method": "GET",
+        "description": "Retrieve user profile with orders, payments, and transaction messages.",
+        "permissions": "IsAuthenticated",
+        "curl": "curl -X GET http://localhost:8000/api/auth/profile/ -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\"",
+        "response_example": {
+          "id": 8,
+          "email": "alice@gmail.com",
+          "first_name": "Alice",
+          "last_name": "",
+          "orders": [
+            {
+              "order_id": "HOS-20250427-0001",
+              "status": "confirmed",
+              "total_price": 400,
+              "items": [
+                {"product": {"id": 1, "name": "Rose Perfume"}, "quantity": 2, "price": 1000}
+              ]
+            }
+          ],
+          "payments": [
+            {
+              "order": {"order_id": "HOS-20250427-0001"},
+              "payment_method": "mpesa_stk",
+              "payment_status": "completed",
+              "transaction_id": "TEST-1234567890",
+              "transaction_messages": []
+            },
+            {
+              "order": {"order_id": "HOS-20250427-0001"},
+              "payment_method": "till_number",
+              "payment_status": "pending",
+              "transaction_id": "",
+              "transaction_messages": [
+                {
+                  "message_text": "XYZ123456 Confirmed. You have sent KES 400 to House of Scents",
+                  "transaction_code": "XYZ123456"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "products": [
+      {
+        "endpoint": "/api/products/",
+        "method": "GET",
+        "description": "List all available products.",
+        "permissions": "AllowAny",
+        "curl": "curl -X GET http://localhost:8000/api/products/",
+        "response_example": [
+          {
+            "id": 1,
+            "name": "Rose Perfume",
+            "final_price": 1000,
+            "stock": 10
+          },
+          {
+            "id": 2,
+            "name": "Lavender Candle",
+            "final_price": 500,
+            "stock": 15
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/products/<int:pk>/",
+        "method": "GET",
+        "description": "Retrieve details of a specific product.",
+        "permissions": "AllowAny",
+        "curl": "curl -X GET http://localhost:8000/api/products/1/",
+        "response_example": {
+          "id": 1,
+          "name": "Rose Perfume",
+          "final_price": 1000,
+          "stock": 10,
+          "description": "A fragrant rose perfume"
+        }
+      },
+      {
+        "endpoint": "/api/products/",
+        "method": "POST",
+        "description": "Create a new product (admin only).",
+        "permissions": "IsAdminUser",
+        "curl": "curl -X POST http://localhost:8000/api/products/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer <admin_token>\" -d '{\"name\": \"Jasmine Soap\", \"description\": \"Scented soap\", \"price\": 300, \"stock\": 20, \"category\": 1}'",
+        "response_example": {
+          "id": 3,
+          "name": "Jasmine Soap",
+          "final_price": 300,
+          "stock": 20
+        }
+      }
+    ],
+    "cart": [
+      {
+        "endpoint": "/api/cart/",
+        "method": "GET",
+        "description": "View the user's or guest's cart.",
+        "permissions": "AllowAny",
+        "curl": "curl -X GET http://localhost:8000/api/cart/ -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\"",
+        "response_example": {
+          "id": 1,
+          "user": 8,
+          "items": [
+            {"id": 1, "product": {"id": 1, "name": "Rose Perfume"}, "quantity": 2}
+          ],
+          "total_price": 400,
+          "coupon": {"code": "HOUSEOFSCENTS001"},
+          "coupon_discount": 1600,
+          "delivery_mode": "pay_on_delivery"
+        }
+      },
+      {
+        "endpoint": "/api/cart/add/",
+        "method": "POST",
+        "description": "Add an item to the cart.",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/cart/add/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\" -d '{\"product_id\": 1, \"quantity\": 2}'",
+        "response_example": {
+          "id": 1,
+          "items": [
+            {"id": 1, "product": {"id": 1, "name": "Rose Perfume"}, "quantity": 2}
+          ],
+          "total_price": 2000
+        }
+      },
+      {
+        "endpoint": "/api/cart/update/",
+        "method": "PATCH",
+        "description": "Update the quantity of an item in the cart.",
+        "permissions": "AllowAny",
+        "curl": "curl -X PATCH http://localhost:8000/api/cart/update/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\" -d '{\"product_id\": 1, \"quantity\": 3}'",
+        "response_example": {
+          "id": 1,
+          "items": [
+            {"id": 1, "product": {"id": 1, "name": "Rose Perfume"}, "quantity": 3}
+          ],
+          "total_price": 3000
+        }
+      },
+      {
+        "endpoint": "/api/cart/remove/",
+        "method": "DELETE",
+        "description": "Remove an item from the cart.",
+        "permissions": "AllowAny",
+        "curl": "curl -X DELETE http://localhost:8000/api/cart/remove/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\" -d '{\"product_id\": 1}'",
+        "response_example": {
+          "id": 1,
+          "items": [],
+          "total_price": 0
+        }
+      },
+      {
+        "endpoint": "/api/cart/clear/",
+        "method": "DELETE",
+        "description": "Clear all items from the cart.",
+        "permissions": "AllowAny",
+        "curl": "curl -X DELETE http://localhost:8000/api/cart/clear/ -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\"",
+        "response_example": {
+          "id": 1,
+          "items": [],
+          "total_price": 0
+        }
+      },
+      {
+        "endpoint": "/api/cart/",
+        "method": "PATCH",
+        "description": "Apply a coupon or set delivery mode.",
+        "permissions": "AllowAny",
+        "curl": "curl -X PATCH http://localhost:8000/api/cart/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\" -d '{\"coupon_code\": \"HOUSEOFSCENTS001\", \"delivery_mode\": \"pay_on_delivery\"}'",
+        "response_example": {
+          "id": 1,
+          "items": [
+            {"id": 1, "product": {"id": 1, "name": "Rose Perfume"}, "quantity": 2}
+          ],
+          "total_price": 400,
+          "coupon": {"code": "HOUSEOFSCENTS001"},
+          "delivery_mode": "pay_on_delivery"
+        }
+      }
+    ],
+    "orders": [
+      {
+        "endpoint": "/api/orders/",
+        "method": "POST",
+        "description": "Create a new order from the cart.",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/orders/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\" -d '{\"coupon_code\": \"HOUSEOFSCENTS001\", \"delivery_mode\": \"pay_on_delivery\", \"address_line1\": \"123 Scented Lane\", \"address_line2\": \"Apartment 4B\", \"city\": \"Nairobi\", \"postal_code\": \"00100\", \"country\": \"Kenya\"}'",
+        "response_example": {
+          "order_id": "HOS-20250427-0001",
+          "total_price": 400,
+          "status": "pending",
+          "items": [
+            {"product": {"id": 1, "name": "Rose Perfume"}, "quantity": 2, "price": 1000}
+          ]
+        }
+      },
+      {
+        "endpoint": "/api/orders/list/",
+        "method": "GET",
+        "description": "List all orders for the authenticated user.",
+        "permissions": "IsAuthenticated",
+        "curl": "curl -X GET http://localhost:8000/api/orders/list/ -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\"",
+        "response_example": [
+          {
+            "order_id": "HOS-20250427-0001",
+            "total_price": 400,
+            "status": "confirmed"
+          }
+        ]
+      },
+      {
+        "endpoint": "/api/orders/<str:order_id>/",
+        "method": "GET",
+        "description": "Retrieve details of a specific order.",
+        "permissions": "IsAuthenticated",
+        "curl": "curl -X GET http://localhost:8000/api/orders/HOS-20250427-0001/ -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\"",
+        "response_example": {
+          "order_id": "HOS-20250427-0001",
+          "total_price": 400,
+          "status": "confirmed"
+        }
+      },
+      {
+        "endpoint": "/api/orders/receipt/<str:order_id>/",
+        "method": "GET",
+        "description": "Download the receipt for an order.",
+        "permissions": "IsAuthenticated",
+        "curl": "curl -X GET http://localhost:8000/api/orders/receipt/HOS-20250427-0001/ -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\"",
+        "response_example": {
+          "receipt": "House of Scents - Order Receipt\nOrder ID: HOS-20250427-0001\n..."
+        }
+      },
+      {
+        "endpoint": "/api/orders/status/<str:order_id>/",
+        "method": "PATCH",
+        "description": "Update the status of an order (admin only).",
+        "permissions": "IsAdminUser",
+        "curl": "curl -X PATCH http://localhost:8000/api/orders/status/HOS-20250427-0001/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer <admin_token>\" -d '{\"status\": \"shipped\"}'",
+        "response_example": {
+          "order_id": "HOS-20250427-0001",
+          "status": "shipped"
+        }
+      }
+    ],
+    "checkout": [
+      {
+        "endpoint": "/api/checkout/initiate/",
+        "method": "POST",
+        "description": "Initiate payment for an order (M-Pesa STK or till number).",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/checkout/initiate/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\" -d '{\"order_id\": \"HOS-20250427-0001\", \"payment_method\": \"mpesa_stk\", \"phone_number\": \"+254712345678\"}'",
+        "curl_till_number": "curl -X POST http://localhost:8000/api/checkout/initiate/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\" -d '{\"order_id\": \"HOS-20250427-0001\", \"payment_method\": \"till_number\"}'",
+        "response_example": {
+          "id": 1,
+          "order": {"order_id": "HOS-20250427-0001"},
+          "payment_method": "mpesa_stk",
+          "payment_status": "pending",
+          "transaction_id": "TEST-1234567890",
+          "amount": 400
+        }
+      },
+      {
+        "endpoint": "/api/checkout/callback/",
+        "method": "POST",
+        "description": "Handle M-Pesa STK callback (simulated for testing).",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/checkout/callback/ -H \"Content-Type: application/json\" -d '{\"Body\": {\"stkCallback\": {\"CheckoutRequestID\": \"TEST-1234567890\", \"ResultCode\": 0, \"ResultDesc\": \"Success\"}}}'",
+        "response_example": {"status": "ok"}
+      },
+      {
+        "endpoint": "/api/payments/callback/",
+        "method": "POST",
+        "description": "Alternative M-Pesa callback URL (for compatibility).",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/payments/callback/ -H \"Content-Type: application/json\" -d '{\"Body\": {\"stkCallback\": {\"CheckoutRequestID\": \"TEST-1234567890\", \"ResultCode\": 0, \"ResultDesc\": \"Success\"}}}'",
+        "response_example": {"status": "ok"}
+      },
+      {
+        "endpoint": "/api/checkout/upload-transaction/",
+        "method": "POST",
+        "description": "Upload an M-Pesa transaction message for till number payments.",
+        "permissions": "AllowAny",
+        "curl": "curl -X POST http://localhost:8000/api/checkout/upload-transaction/ -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ6MzM0NjMyLCJpYXQiOjE3NDU3Mjk4MzIsImp0aSI6IjlkOWZhNzY3OGFhNTQwOGJhZjJjMjJkZjNmNDQ2NmI1IiwidXNlcl9pZCI6OH0.EIARc-w2bNZzKE0yM4ikARbd0ADEMjSorFhrBKdKIR8\" -d '{\"order_id\": \"HOS-20250427-0001\", \"message_text\": \"XYZ123456 Confirmed. You have sent KES 400 to House of Scents\", \"transaction_code\": \"XYZ123456\"}'",
+        "response_example": {
+          "id": 1,
+          "message_text": "XYZ123456 Confirmed. You have sent KES 400 to House of Scents",
+          "transaction_code": "XYZ123456",
+          "uploaded_at": "2025-04-27T07:10:00Z"
+        }
+      }
+    ]
+  }
