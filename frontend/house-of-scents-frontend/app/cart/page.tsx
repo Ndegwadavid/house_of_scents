@@ -3,35 +3,65 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { getCart, updateCartItem, removeFromCart, applyCoupon } from '../api/cart';
+import {
+  getCart,
+  updateCartItem,
+  removeFromCart,
+  applyCoupon,
+  updateDeliveryMode,
+} from '../api/cart';
 import { useCartStore } from '../store/cart';
 import toast from 'react-hot-toast';
-import { CartResponse } from '../types/cart';
+import { CartResponse } from '../api/cart';
 import { Minus, Plus, Trash2, Tag, ArrowRight } from 'lucide-react';
 
 export default function CartPage() {
   const [cart, setCart] = useState<CartResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState('');
-  const [deliveryMode, setDeliveryMode] = useState<'pickup' | 'delivery'>('delivery');
-  const { items, updateQuantity, removeItem } = useCartStore();
+  const [deliveryMode, setDeliveryMode] = useState<
+    'pay_on_delivery' | 'collect_at_shop' | 'pay_now'
+  >('pay_on_delivery');
+  const { items, updateQuantity, removeItem, initializeCart } = useCartStore();
   const router = useRouter();
 
   useEffect(() => {
     const loadCart = async () => {
       try {
+        await initializeCart(); // Sync Zustand store with backend
         const data = await getCart();
         setCart(data);
+        // Update delivery mode from backend if available
+        if (data.delivery_mode) {
+          setDeliveryMode(data.delivery_mode as any);
+        }
       } catch (error) {
         console.error('Error loading cart:', error);
         toast.error('Failed to load cart');
-        setCart({ items: [], total_price: 0 });
+        setCart({ id: 0, items: [], total_price: 0 });
       } finally {
         setLoading(false);
       }
     };
     loadCart();
-  }, []);
+  }, [initializeCart]);
+
+  useEffect(() => {
+    // Update delivery mode on backend when it changes
+    const updateMode = async () => {
+      if (cart && cart.delivery_mode !== deliveryMode) {
+        try {
+          const updatedCart = await updateDeliveryMode(deliveryMode);
+          setCart(updatedCart);
+          toast.success('Delivery mode updated');
+        } catch (error) {
+          console.error('Error updating delivery mode:', error);
+          toast.error('Failed to update delivery mode');
+        }
+      }
+    };
+    updateMode();
+  }, [deliveryMode, cart]);
 
   const handleUpdateQuantity = async (productId: number, quantity: number) => {
     if (quantity < 1 || quantity > 100) return;
@@ -40,9 +70,12 @@ export default function CartPage() {
       setCart(updatedCart);
       updateQuantity(productId, quantity);
       toast.success('Cart updated');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating quantity:', error);
-      toast.error('Failed to update cart');
+      toast.error(
+        error.response?.data?.detail ||
+          'Failed to update cart. Check stock availability.'
+      );
     }
   };
 
@@ -68,9 +101,11 @@ export default function CartPage() {
       setCart(response);
       toast.success('Coupon applied successfully');
       setCouponCode('');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error applying coupon:', error);
-      toast.error('Invalid or expired coupon');
+      toast.error(
+        error.response?.data?.coupon_code?.[0] || 'Invalid or expired coupon'
+      );
     }
   };
 
@@ -97,8 +132,8 @@ export default function CartPage() {
     (sum, item) => sum + item.product.final_price * item.quantity,
     0
   );
-  const discount = subtotal - cart.total_price; // Assuming total_price reflects coupon
-  const deliveryCost = deliveryMode === 'delivery' ? 200 : 0; // Example delivery cost
+  const discount = cart.coupon_discount || 0; // Use coupon_discount from backend
+  const deliveryCost = deliveryMode === 'pay_on_delivery' ? 200 : 0; // Adjust based on backend
   const total = cart.total_price + deliveryCost;
 
   return (
@@ -177,11 +212,14 @@ export default function CartPage() {
               <label className="block text-sm font-medium text-gray-600">Delivery Mode</label>
               <select
                 value={deliveryMode}
-                onChange={(e) => setDeliveryMode(e.target.value as 'pickup' | 'delivery')}
+                onChange={(e) =>
+                  setDeliveryMode(e.target.value as 'pay_on_delivery' | 'collect_at_shop' | 'pay_now')
+                }
                 className="w-full p-2 border rounded focus:ring-purple-500 focus:border-purple-500"
               >
-                <option value="delivery">Delivery (KES 200)</option>
-                <option value="pickup">Pickup (Free)</option>
+                <option value="pay_on_delivery">Pay on Delivery (KES 200)</option>
+                <option value="collect_at_shop">Collect at Shop (Free)</option>
+                <option value="pay_now">Pay Now (Free)</option>
               </select>
             </div>
             <div className="mt-4">
