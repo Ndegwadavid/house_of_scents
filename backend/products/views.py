@@ -36,6 +36,7 @@ class ProductListCreateView(generics.ListCreateAPIView):
         min_price = self.request.query_params.get('min_price', None)
         max_price = self.request.query_params.get('max_price', None)
         in_stock = self.request.query_params.get('in_stock', None)
+        is_new = self.request.query_params.get('is_new', None)
         sort = self.request.query_params.get('sort', None)
 
         if query:
@@ -58,11 +59,13 @@ class ProductListCreateView(generics.ListCreateAPIView):
             )
         if in_stock == 'true':
             queryset = queryset.filter(stock__gt=0)
+        if is_new == 'true':
+            queryset = queryset.filter(is_new=True)
         if sort in ['price', '-price', 'name', '-name', 'created_at', '-created_at']:
             queryset = queryset.order_by(sort)
 
         return queryset
-
+    
 class ProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer

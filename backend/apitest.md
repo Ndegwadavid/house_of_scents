@@ -8,7 +8,7 @@ curl http://localhost:8000/api/auth/verify-email/?token=edb9aed5-8543-45f0-82b8-
 curl -X POST http://localhost:8000/api/auth/login/ -H "Content-Type: application/json" -d '{"email": "alice@gmail.com", "password": "kali"}'
 
 ## profile access
-curl http://localhost:8000/api/auth/profile/ -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDY0NTczLCJpYXQiOjE3NDU0NTk3NzMsImp0aSI6IjZjNDNkM2FmZmY1MjQ3ZmRiMGQ5NTIwMDZkZjE5MmQzIiwidXNlcl9pZCI6Mn0.Tn4gLxXQlAEVcJyJnx_m0Q278_aRcRFOnyNYfbeMuUc"
+curl http://localhost:8000/api/auth/profile/ -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MzQ2MDM0LCJpYXQiOjE3NDU3NDEyMzQsImp0aSI6ImE3MzQ3NTZkOTk2MTQ1NjZhNjA4MjkzY2YyZmMwODNkIiwidXNlcl9pZCI6OH0.9MYkjyTbOVqQC8nMtEYQNT-B7hdFPwB1eTwV8Yvs1qY"
 
 ## update profile
 curl -X PUT http://localhost:8000/api/auth/profile/ -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2MDU4MTY0LCJpYXQiOjE3NDU0NTMzNjQsImp0aSI6ImRhZTMxMTRlZDY1MzQxYjdiZWU2NjhiYmM2Mzk1ZWEwIiwidXNlcl9pZCI6Mn0.aRyiAzQP1FxdqtzwDxXFRHlqWSeTw2qnKl_RH07_OfQ" -H "Content-Type: application/json" -d '{"address": "Nairobi, Kenya", "phone": "0712345674"}'

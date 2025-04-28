@@ -1,5 +1,13 @@
 from django.contrib import admin
-from .models import Category, Product, Review, Coupon
+from .models import Category, Product, Review, Coupon, ProductImage
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ['product', 'image', 'created_at']
+    list_filter = ['product']
+    search_fields = ['product__name']
+
 
 class ReviewInline(admin.TabularInline):
     model = Review

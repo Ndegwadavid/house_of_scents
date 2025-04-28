@@ -1,11 +1,16 @@
 from rest_framework import serializers
-from .models import Category, Product, Review, Coupon
+from .models import Category, Product, Review, Coupon, ProductImage
 from users.models import User
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image', 'created_at']
+
 class ReviewSerializer(serializers.ModelSerializer):
-    user_email = serializers.CharField(source='user.email', read_only=True)  # Keep for backward compatibility
-    user_name = serializers.CharField(source='user.name', read_only=True)  # Add user's name
-    masked_email = serializers.SerializerMethodField()  # Custom masked email
+    user_email = serializers.CharField(source='user.email', read_only=True)
+    user_name = serializers.CharField(source='user.name', read_only=True)
+    masked_email = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
@@ -46,13 +51,15 @@ class ProductSerializer(serializers.ModelSerializer):
     )
     photo = serializers.ImageField(required=False)
     reviews = ReviewSerializer(many=True, read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True)
     final_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'description', 'scent', 'price', 'discount_price', 'final_price',
-            'stock', 'category', 'category_id', 'photo', 'created_at', 'is_new', 'is_featured', 'reviews'
+            'stock', 'category', 'category_id', 'photo', 'created_at', 'is_new', 'is_featured',
+            'reviews', 'images'
         ]
 
     def validate_photo(self, value):

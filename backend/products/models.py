@@ -8,33 +8,41 @@ from django.core.mail import send_mass_mail
 from django.utils import timezone
 from django.core.cache import cache
 from django.conf import settings
-from django.utils import timezone
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)  # e.g., "Floral", "Woody"
+    name = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = 'categories'
-        indexes = [
-            models.Index(fields=['name']),
-        ]
+        indexes = [models.Index(fields=['name'])]
 
     def __str__(self):
         return self.name
 
+class ProductImage(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='products/images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [models.Index(fields=['product'])]
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
+
 class Product(DirtyFieldsMixin, models.Model):
-    name = models.CharField(max_length=200)  # e.g., "Lavender Bliss Candle"
+    name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    scent = models.CharField(max_length=100, blank=True)  # e.g., "Lavender", "Sandalwood"
+    scent = models.CharField(max_length=100, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
     stock = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    photo = models.ImageField(upload_to='products/', null=True, blank=True)
+    photo = models.ImageField(upload_to='products/', null=True, blank=True)  # Keep for backward compatibility
     created_at = models.DateTimeField(auto_now_add=True)
     is_new = models.BooleanField(default=True)
-    is_featured = models.BooleanField(default=False)  # For homepage featured candles
+    is_featured = models.BooleanField(default=False)
 
     class Meta:
         indexes = [
@@ -60,10 +68,8 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('product', 'user')  # One review per user per product
-        indexes = [
-            models.Index(fields=['product', 'user']),
-        ]
+        unique_together = ('product', 'user')
+        indexes = [models.Index(fields=['product', 'user'])]
 
     def __str__(self):
         return f"{self.user.email} - {self.product.name} ({self.rating} stars)"
