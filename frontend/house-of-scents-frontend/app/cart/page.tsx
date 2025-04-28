@@ -128,8 +128,20 @@ export default function CartPage() {
     );
   }
 
-  const subtotal = cart.items.reduce(
-    (sum, item) => sum + item.product.final_price * item.quantity,
+  interface CartItem {
+    id: number;
+    product: {
+      id: number;
+      name: string;
+      final_price: number;
+      stock: number;
+      photo?: string;
+    };
+    quantity: number;
+  }
+
+  const subtotal: number = cart.items.reduce(
+    (sum: number, item: CartItem) => sum + item.product.final_price * item.quantity,
     0
   );
   const discount = cart.coupon_discount || 0; // Use coupon_discount from backend

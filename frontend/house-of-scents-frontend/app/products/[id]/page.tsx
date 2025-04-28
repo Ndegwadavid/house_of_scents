@@ -51,6 +51,7 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ id: s
         name: product.name,
         quantity: 1,
         price: product.final_price,
+        stock: product.stock,
       });
       toast.success(`${product.name} added to cart`);
     } catch (error) {

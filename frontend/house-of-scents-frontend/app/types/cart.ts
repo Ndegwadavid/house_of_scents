@@ -23,6 +23,7 @@ export interface CartResponse {
     id: number; // Coupon ID
     code: string; // Coupon code
     discount: number; // Discount amount or percentage (depending on backend implementation)
+    coupon_discount_type: 'percentage' | 'fixed'; // Type of discount (percentage or fixed amount)
     minimum_order_value?: number; // Minimum order value for coupon validity
     active: boolean; // Whether the coupon is active
   } | null; // Coupon applied to the cart, or null if none

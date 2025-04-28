@@ -1,7 +1,8 @@
 import api from '../utils/api';
-import { CartResponse } from '../types/cart';
+import { CartResponse as ExternalCartResponse } from '../types/cart';
 
 // Define a more accurate CartResponse type to match backend
+// Add the export for CartResponse if missing
 export interface CartResponse {
   id: number;
   items: Array<{
@@ -10,14 +11,14 @@ export interface CartResponse {
       id: number;
       name: string;
       final_price: number;
-      photo: string | null;
       stock: number;
+      photo?: string;
     };
     quantity: number;
   }>;
   total_price: number;
-  coupon?: { code: string; discount: number } | null;
-  delivery_mode?: string | null;
+  coupon_discount?: number;
+  delivery_mode?: string;
 }
 
 export const getCart = async (): Promise<CartResponse> => {
@@ -30,7 +31,7 @@ export const getCart = async (): Promise<CartResponse> => {
       id: response.data.id || 0,
       items: Array.isArray(response.data.items) ? response.data.items : [],
       total_price: response.data.total_price || 0,
-      coupon: response.data.coupon || null,
+      coupon_discount: response.data.coupon_discount || null,
       delivery_mode: response.data.delivery_mode || null,
     };
   } catch (error: any) {
@@ -47,7 +48,7 @@ export const addToCart = async (productId: number, quantity: number): Promise<Ca
       id: response.data.id || 0,
       items: Array.isArray(response.data.items) ? response.data.items : [],
       total_price: response.data.total_price || 0,
-      coupon: response.data.coupon || null,
+      coupon_discount: response.data.coupon_discount || null,
       delivery_mode: response.data.delivery_mode || null,
     };
   } catch (error) {
@@ -67,7 +68,7 @@ export const updateCartItem = async (
       id: response.data.id || 0,
       items: Array.isArray(response.data.items) ? response.data.items : [],
       total_price: response.data.total_price || 0,
-      coupon: response.data.coupon || null,
+      coupon_discount: response.data.coupon_discount || null,
       delivery_mode: response.data.delivery_mode || null,
     };
   } catch (error) {
@@ -86,7 +87,7 @@ export const removeFromCart = async (productId: number): Promise<CartResponse> =
       id: response.data.id || 0,
       items: Array.isArray(response.data.items) ? response.data.items : [],
       total_price: response.data.total_price || 0,
-      coupon: response.data.coupon || null,
+      coupon_discount: response.data.coupon_discount || null,
       delivery_mode: response.data.delivery_mode || null,
     };
   } catch (error) {
@@ -104,7 +105,7 @@ export const applyCoupon = async (data: { code: string }): Promise<CartResponse>
       id: response.data.id || 0,
       items: Array.isArray(response.data.items) ? response.data.items : [],
       total_price: response.data.total_price || 0,
-      coupon: response.data.coupon || null,
+      coupon_discount: response.data.coupon_discount || null,
       delivery_mode: response.data.delivery_mode || null,
     };
   } catch (error) {
@@ -121,7 +122,7 @@ export const updateDeliveryMode = async (deliveryMode: string): Promise<CartResp
       id: response.data.id || 0,
       items: Array.isArray(response.data.items) ? response.data.items : [],
       total_price: response.data.total_price || 0,
-      coupon: response.data.coupon || null,
+      coupon_discount: response.data.coupon_discount || null,
       delivery_mode: response.data.delivery_mode || null,
     };
   } catch (error) {

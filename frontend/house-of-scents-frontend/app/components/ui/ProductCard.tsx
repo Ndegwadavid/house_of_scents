@@ -23,6 +23,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         name: product.name,
         quantity: 1,
         price: product.final_price,
+        stock: product.stock,
       });
       toast.success(`${product.name} added to cart`);
     } catch (error) {
